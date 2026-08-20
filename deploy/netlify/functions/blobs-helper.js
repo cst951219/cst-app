@@ -20,8 +20,22 @@ async function blobFetch(url, options = {}) {
 // 获取 blob（文本）
 async function get(store, key) {
   try {
-    const res = await blobFetch(`${BASE_URL}/${store}/${encodeURIComponent(key)}`);
+    const res = await blobFetch(`${BASE_URL}/${store}/${encodeURIComponent(key)}`, {
+      redirect: 'manual',
+    });
+    // 404 = 不存在
     if (res.status === 404) return null;
+    // 302/307 = 重定向到S3，需要再请求一次
+    if (res.status === 302 || res.status === 307 || res.status === 301) {
+      const s3Url = res.headers.get('location');
+      if (s3Url) {
+        // 请求S3，不带Authorization头（S3用预签名URL认证）
+        const s3Res = await fetch(s3Url);
+        if (s3Res.status === 404) return null;
+        if (!s3Res.ok) throw new Error(`S3 GET failed: ${s3Res.status}`);
+        return await s3Res.text();
+      }
+    }
     if (!res.ok) throw new Error(`Blobs GET failed: ${res.status}`);
     return await res.text();
   } catch (e) {
