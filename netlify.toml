@@ -1,0 +1,23 @@
+[build]
+  publish = "src"
+  functions = "netlify/functions"
+
+# SPA 路由重定向（所有路径指向 index.html）
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# 安全头
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Service Worker 不缓存
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"

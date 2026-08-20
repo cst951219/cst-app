@@ -1,0 +1,30 @@
+{
+  "name": "CST APP — 个人工作与生活控制台",
+  "short_name": "CST",
+  "description": "个人工作与生活专属APP，计划管理、倒计时、植物养成、翻牌记忆",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F7F3ED",
+  "theme_color": "#A8C3A0",
+  "lang": "zh-CN",
+  "permissions": ["notifications"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "apple": {
+    "statusBarStyle": "default"
+  }
+}
