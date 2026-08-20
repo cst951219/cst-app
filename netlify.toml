@@ -1,6 +1,6 @@
 [build]
-  publish = "src"
-  functions = "netlify/functions"
+  publish = "deploy/src"
+  functions = "deploy/netlify/functions"
 
 # 安全头
 [[headers]]
