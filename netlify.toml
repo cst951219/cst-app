@@ -2,12 +2,6 @@
   publish = "src"
   functions = "netlify/functions"
 
-# SPA 路由重定向（所有路径指向 index.html）
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
 # 安全头
 [[headers]]
   for = "/*"

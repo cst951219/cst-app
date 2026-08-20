@@ -1,0 +1,9 @@
+{
+  "name": "cst-app-functions",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "dependencies": {
+    "web-push": "^3.6.7",
+    "@netlify/blobs": "^8.1.0"
+  }
+}
