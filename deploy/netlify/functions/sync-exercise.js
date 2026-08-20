@@ -1,7 +1,7 @@
 // Netlify Function: 同步运动数据（苹果快捷指令调用）
-// 快捷指令每天把健康APP的运动卡路里发到这里
 
-const { getStore } = require('@netlify/blobs');
+const blobs = require('./blobs-helper.js');
+const STORE = 'cst-app-data';
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -15,8 +15,6 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const store = getStore('cst-app-data');
-
     if (event.httpMethod === 'POST') {
       const body = JSON.parse(event.body);
       const { deviceId, calories, steps, date } = body;
@@ -28,7 +26,7 @@ exports.handler = async (event, context) => {
       const todayStr = date || new Date().toISOString().split('T')[0];
 
       // 读取现有用户数据
-      let userData = await store.get(`user:${deviceId}`, { type: 'json' }) || {};
+      let userData = await blobs.getJSON(STORE, `user:${deviceId}`) || {};
       if (!userData.exercise) userData.exercise = {};
 
       // 更新运动数据
@@ -41,14 +39,14 @@ exports.handler = async (event, context) => {
       userData.updatedAt = new Date().toISOString();
 
       // 保存
-      await store.setJSON(`user:${deviceId}`, userData);
+      await blobs.setJSON(STORE, `user:${deviceId}`, userData);
 
       // 维护设备列表
       try {
-        let devices = await store.get('devices', { type: 'json' }) || [];
+        let devices = await blobs.getJSON(STORE, 'devices') || [];
         if (!devices.includes(deviceId)) {
           devices.push(deviceId);
-          await store.setJSON('devices', devices);
+          await blobs.setJSON(STORE, 'devices', devices);
         }
       } catch (e) {}
 
@@ -72,7 +70,7 @@ exports.handler = async (event, context) => {
         return { statusCode: 400, headers, body: JSON.stringify({ error: '缺少 deviceId' }) };
       }
 
-      const userData = await store.get(`user:${deviceId}`, { type: 'json' }) || {};
+      const userData = await blobs.getJSON(STORE, `user:${deviceId}`) || {};
       const exercise = userData.exercise?.[date] || { calories: 0, steps: 0, source: null };
 
       return {

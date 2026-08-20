@@ -1,10 +1,9 @@
 // Netlify Function: 定时检查提醒并发送推送
-// 由 cron-job.org 或 Netlify 定时触发器每天调用
 
-const { getStore } = require('@netlify/blobs');
+const blobs = require('./blobs-helper.js');
 const webpush = require('web-push');
+const STORE = 'cst-app-data';
 
-// 配置 VAPID（从环境变量读取）
 const vapidPublicKey = process.env.VAPID_PUBLIC_KEY;
 const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
 
@@ -23,49 +22,41 @@ exports.handler = async (event, context) => {
   };
 
   try {
-    const store = getStore('cst-app-data');
+    const today = new Date().toISOString().split('T')[0];
+    const results = [];
 
-    // 获取所有设备列表
+    // 获取设备列表
     let devices = [];
     try {
-      const devicesData = await store.get('devices', { type: 'json' });
-      devices = devicesData || [];
+      devices = await blobs.getJSON(STORE, 'devices') || [];
     } catch (e) {
       devices = [];
     }
 
-    const today = new Date().toISOString().split('T')[0];
-    const results = [];
-
     for (const deviceId of devices) {
       try {
-        // 读取用户数据
-        const userData = await store.get(`user:${deviceId}`, { type: 'json' });
+        const userData = await blobs.getJSON(STORE, `user:${deviceId}`);
         if (!userData) continue;
 
-        // 读取推送订阅
-        const pushData = await store.get(`push:${deviceId}`, { type: 'json' });
+        const pushData = await blobs.getJSON(STORE, `push:${deviceId}`);
         if (!pushData?.subscription) continue;
 
         const reminders = [];
 
-        // 检查计划（今天到期或逾期）
+        // 检查计划
         if (userData.plans) {
           for (const plan of userData.plans) {
             if (plan.completed || !plan.dueDate) continue;
             const dueDate = plan.dueDate;
             const daysDiff = Math.ceil((new Date(dueDate) - new Date(today)) / (1000 * 60 * 60 * 24));
 
-            // 今天到期或逾期1天内的发送提醒
             if (daysDiff === 0 || daysDiff === -1) {
               reminders.push({
                 type: 'plan',
                 title: daysDiff === 0 ? '今日待办' : '已逾期',
                 body: plan.title,
               });
-            }
-            // 提前提醒（根据reminderDays）
-            else if (plan.reminderDays && daysDiff > 0 && daysDiff <= plan.reminderDays) {
+            } else if (plan.reminderDays && daysDiff > 0 && daysDiff <= plan.reminderDays) {
               reminders.push({
                 type: 'plan',
                 title: `即将到期（${daysDiff}天后）`,
@@ -75,7 +66,7 @@ exports.handler = async (event, context) => {
           }
         }
 
-        // 检查大事件（今天或明天）
+        // 检查大事件
         if (userData.events) {
           for (const event of userData.events) {
             if (!event.date) continue;
@@ -94,7 +85,7 @@ exports.handler = async (event, context) => {
           }
         }
 
-        // 检查好友生日（今天或明天）
+        // 检查好友生日
         if (userData.friends) {
           for (const friend of userData.friends) {
             if (!friend.birthMonth || !friend.birthDay) continue;
@@ -126,9 +117,8 @@ exports.handler = async (event, context) => {
             results.push({ deviceId, sent: reminder.title });
           } catch (pushError) {
             console.error(`推送发送失败 ${deviceId}:`, pushError.message);
-            // 推送订阅失效，删除
             if (pushError.statusCode === 410) {
-              await store.delete(`push:${deviceId}`);
+              await blobs.remove(STORE, `push:${deviceId}`);
             }
           }
         }
@@ -157,7 +147,6 @@ exports.handler = async (event, context) => {
   }
 };
 
-// 辅助函数：计算下一个年度事件日期
 function getNextYearlyDate(dateStr, todayStr) {
   const [, month, day] = dateStr.split('-');
   const today = new Date(todayStr);
@@ -168,7 +157,6 @@ function getNextYearlyDate(dateStr, todayStr) {
   return new Date(today.getFullYear() + 1, parseInt(month) - 1, parseInt(day)).toISOString().split('T')[0];
 }
 
-// 辅助函数：计算下一个生日
 function getNextBirthday(month, day, todayStr) {
   const today = new Date(todayStr);
   const thisYear = new Date(today.getFullYear(), month - 1, day);

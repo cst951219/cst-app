@@ -5,5 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "node tests/run_all.js"
+  },
+  "dependencies": {
+    "web-push": "^3.6.7"
   }
 }

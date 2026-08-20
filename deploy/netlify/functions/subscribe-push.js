@@ -1,7 +1,8 @@
 // Netlify Function: 推送订阅
-// 保存用户的推送订阅信息到 Netlify Blobs
+// 保存用户的推送订阅信息
 
-const { getStore } = require('@netlify/blobs');
+const blobs = require('./blobs-helper.js');
+const STORE = 'cst-app-data';
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -26,10 +27,7 @@ exports.handler = async (event, context) => {
       return { statusCode: 400, headers, body: JSON.stringify({ error: '缺少 deviceId 或 subscription' }) };
     }
 
-    const store = getStore('cst-app-data');
-
-    // 保存推送订阅信息
-    await store.setJSON(`push:${deviceId}`, {
+    await blobs.setJSON(STORE, `push:${deviceId}`, {
       subscription,
       createdAt: new Date().toISOString(),
     });
