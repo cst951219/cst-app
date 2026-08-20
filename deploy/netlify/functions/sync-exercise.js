@@ -23,7 +23,12 @@ exports.handler = async (event, context) => {
         return { statusCode: 400, headers, body: JSON.stringify({ error: '缺少 deviceId' }) };
       }
 
-      const todayStr = date || new Date().toISOString().split('T')[0];
+      // 验证date格式，如果不是有效的YYYY-MM-DD就用今天
+      const todayDefault = new Date().toISOString().split('T')[0];
+      let todayStr = todayDefault;
+      if (date && typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        todayStr = date;
+      }
 
       // 读取现有用户数据
       let userData = await blobs.getJSON(STORE, `user:${deviceId}`) || {};
