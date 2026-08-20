@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CST APP — 个人工作与生活控制台</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <meta name="theme-color" content="#A8C3A0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="CST">
+    <meta name="description" content="个人工作与生活专属APP">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- 顶部导航栏（手机端显示） -->
+    <header class="top-nav" id="top-nav">
+        <div class="top-nav-left">
+            <button class="top-nav-btn" id="menu-toggle" aria-label="菜单">☰</button>
+            <span class="top-nav-title" id="top-nav-title">🌿 CST</span>
+        </div>
+        <div class="top-nav-right">
+            <button class="top-nav-btn primary" id="quick-add-btn" aria-label="添加">+</button>
+        </div>
+    </header>
+
+    <!-- 侧边栏遮罩 -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <div id="app">
+        <!-- 左侧导航 -->
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-logo">🌿 CST</div>
+            <ul class="nav-list">
+                <li class="nav-item active" data-page="home">🏠 首页</li>
+                <li class="nav-item" data-page="plans">📋 计划</li>
+                <li class="nav-item" data-page="countdown">📅 时光记</li>
+                <li class="nav-item" data-page="entertainment">🎮 娱乐</li>
+                <li class="nav-item" data-page="settings">⚙️ 设置</li>
+            </ul>
+            <!-- 今日习惯打卡 -->
+            <div class="sidebar-habits" id="sidebar-habits">
+                <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px;font-weight:600;">💪 今日习惯</div>
+                <label class="habit-check" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 0;font-size:0.85rem;">
+                    <input type="checkbox" id="habit-fitness-check" style="width:16px;height:16px;accent-color:var(--accent-sage);">
+                    <span>🏃 健身</span>
+                </label>
+                <label class="habit-check" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 0;font-size:0.85rem;">
+                    <input type="checkbox" id="habit-tidy-check" style="width:16px;height:16px;accent-color:var(--accent-sage);">
+                    <span>🧹 整理环境</span>
+                </label>
+            </div>
+        </nav>
+
+        <!-- 主内容区 -->
+        <main id="main-content" class="main-content">
+            <div id="page-container">
+                <!-- 页面内容由 JS 动态渲染 -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast 容器 -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Modal 容器 -->
+    <div id="modal-container"></div>
+
+    <!-- Drawer 容器 -->
+    <div id="drawer-container"></div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

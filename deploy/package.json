@@ -1,0 +1,9 @@
+{
+  "name": "cst-app",
+  "version": "1.0.0",
+  "description": "个人工作与生活控制台",
+  "type": "module",
+  "scripts": {
+    "test": "node tests/run_all.js"
+  }
+}
